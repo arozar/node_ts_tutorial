@@ -6,6 +6,7 @@
     "sourceMap": true,                      /* Generates corresponding '.map' file. */
     "strict": true,                         /* Enable all strict type-checking options. */
     "moduleResolution": "node",             /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
-    "typeRoots": ["node_module/@types"]     /* List of folders to include type definitions from. */
+    "typeRoots": ["node_module/@types","typings"],     /* List of folders to include type definitions from. */
+    "outDir": "./dist"
   }
 }

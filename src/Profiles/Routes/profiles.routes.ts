@@ -1,13 +1,13 @@
 import { Router, Express } from 'express';
 import { createProfile, uploadProfile, viewProfiles }  from '../Controllers/profiles.controller';
-import { uploadHandler } from '../Services/upload.service';
+import { createUploadHandler } from '../Services/upload.service';
 import * as path from 'path';
 
 const router = Router();
 
 router.get('/', createProfile);
 
-router.post('/upload', uploadHandler.single('image') , uploadProfile);
+router.post('/upload', createUploadHandler.single('image') , uploadProfile);
 
 router.get('/profiles', viewProfiles);
 

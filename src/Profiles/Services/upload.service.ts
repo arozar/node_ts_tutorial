@@ -2,10 +2,10 @@ import * as  multer from 'multer';
 
 import MulterGoogleCloudStorage from 'multer-google-storage';
 
-const uploadHandler = multer({
+const createUploadHandler = multer({
   storage: new MulterGoogleCloudStorage()
 });
 
 export {
-	uploadHandler
+	createUploadHandler
 }

@@ -6,11 +6,13 @@ export const createProfile = (req: Request, res: Response) => {
   res.render('index', { layout: false , title: 'Please upload your application' });
 }
 
-export const uploadProfile = async (req:Request & any, res: Response) => {
+export const uploadProfile = async (req:Request, res: Response) => {
 
     const fileName = req.file.path;
     
-    const newProfile: Profile = Object.assign(new ProfileRecord(), { fileName, ...req.body });
+    const { title, description } = req.body as Profile;
+
+    const newProfile: Profile = Object.assign(new ProfileRecord(), { fileName, title, description });
 
     const savedProfile = await newProfile.save();
 

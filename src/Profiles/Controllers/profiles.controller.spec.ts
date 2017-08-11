@@ -32,7 +32,7 @@ describe('profiles controller', function() {
     });
 
     afterEach(function() {
-        sinon.restore(ProfileRecord.find);
+        (ProfileRecord.find as sinon.SinonStub).restore();
     });
 
     it('should return expected models', async function() {
@@ -85,7 +85,7 @@ describe('profiles controller upload', function () {
         sinon.assert.called(ProfileRecord.prototype.save);        
     });
 
-    it('should create save and return Profile', async function () {
+    it('should create, save and return Profile', async function () {
 
         let file = { path: 'test' }; 
         let body = { title:'test title', description: 'test description' };

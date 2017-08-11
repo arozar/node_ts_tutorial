@@ -1,9 +1,10 @@
 import 'mocha';
 import { expect } from 'chai';
 import * as sinon from 'sinon';
+import * as mongoose from 'mongoose';
 
 import { createProfile, uploadProfile, viewProfiles } from '../Controllers/profiles.controller';
-import { Profile } from '../Models/profiles.models';
+import { Profile, ProfileRecord } from '../Models/profiles.models';
 
 describe('profiles controller create', function () {
  
@@ -24,21 +25,20 @@ describe('profiles controller create', function () {
 });
 
 describe('profiles controller', function() {
-    let ProfileRecord = require('../Models/profiles.models').ProfileRecord;
+    let ProfileRecord: mongoose.Model<Profile> = require('../Models/profiles.models').ProfileRecord;
 
     beforeEach(function() {
         sinon.stub(ProfileRecord, 'find');
     });
 
     afterEach(function() {
-        ProfileRecord.find.restore();
+        sinon.restore(ProfileRecord.find);
     });
 
-
-    it('should save a new profile', async function() {
+    it('should return expected models', async function() {
 
         var expectedModels = [{}, {}];
-        ProfileRecord.find.resolves(expectedModels);
+        (ProfileRecord.find as sinon.SinonStub).resolves(expectedModels);
         var req: any = { };
         var res: any = {
             json: sinon.stub()
@@ -48,16 +48,17 @@ describe('profiles controller', function() {
 
         sinon.assert.calledWith(res.json, expectedModels);
     });
-
 });
 
 describe('profiles controller upload', function () {
-    let ProfileRecord = require('../Models/profiles.models').ProfileRecord;
-
+    const ProfileRecord: mongoose.Model<Profile> = require('../Models/profiles.models').ProfileRecord;
+    
+    const ProfilePrototype: mongoose.Document = ProfileRecord.prototype;
+    
     beforeEach(function () {
         sinon.stub(ProfileRecord.prototype, 'save');
 
-        ProfileRecord.prototype.save.callsFake(function (this: Profile) {
+        (ProfilePrototype.save as sinon.SinonStub).callsFake(function (this: Profile) {
             let currentRecord = this;
 
             return Promise.resolve(currentRecord);
@@ -65,10 +66,10 @@ describe('profiles controller upload', function () {
     });
 
     afterEach(function () {
-        ProfileRecord.prototype.save.restore();
+        (ProfilePrototype.save as sinon.SinonStub).restore();
     });
 
-    it('should create save and return Profile', async function () {
+    it('should call save ', async function () {
 
         let file = { path: 'test' }; 
         let body = { title:'test title', description: 'test description' };
@@ -81,9 +82,24 @@ describe('profiles controller upload', function () {
         
         await uploadProfile(req, res);
 
-        expect(createdModels.fileName).to.equal(file.path);
-        expect(createdModels.title).to.equal(body.title);
-        expect(createdModels.description).to.equal(body.description);
+        sinon.assert.called(ProfileRecord.prototype.save);        
+    });
+
+    it('should create save and return Profile', async function () {
+
+        let file = { path: 'test' }; 
+        let body = { title:'test title', description: 'test description' };
+        let req: any = { file, body };
+
+        let createdModel: Partial<Profile> = {};
+        let res: any = {
+            json: (data: any) => createdModel = data
+        };
         
+        await uploadProfile(req, res);
+
+        expect(createdModel.fileName).to.equal(file.path);
+        expect(createdModel.title).to.equal(body.title);
+        expect(createdModel.description).to.equal(body.description);       
     });
 });

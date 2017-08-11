@@ -8,7 +8,7 @@
     "compile": "npm run clean && tsc && copyfiles -u 1 ./src/**/*.handlebars ./dist",
     "debug": "npm run compile && node --inspect-brk ./dist/index.js",
     "clean": "rimraf ./dist",
-    "test": "npm run compile && nyc mocha ./dist/Profiles/Controllers/*.spec.js",
+    "test": "npm run compile && nyc mocha ./dist/**/*.spec.js",
     "test:debug": "npm run compile && mocha --inspect-brk ./dist/**/*.spec.js"
   },
   "author": "Andrew de Rozario <andrew@justintimecoder.com> (https://justintimecoder.com/)",

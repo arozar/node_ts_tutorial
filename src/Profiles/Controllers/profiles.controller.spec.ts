@@ -2,6 +2,7 @@ import 'mocha';
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import * as mongoose from 'mongoose';
+import { Response, Request, Express } from 'express';
 
 import { createProfile, uploadProfile, viewProfiles } from '../Controllers/profiles.controller';
 import { Profile, ProfileRecord } from '../Models/profiles.models';
@@ -12,20 +13,20 @@ describe('profiles controller create', function () {
 
         let file = { path: 'test' }; 
         let body = { title:'test title', description: 'test description' };
-        let req: any = {};
+        let req: Partial<Request> = {};
 
-        let res: any = {
+        let res: Partial<Response> = {
             render: sinon.stub()
         };
         
-        await createProfile(req, res);
+        createProfile(<Request>req, <Response>res);
 
-        sinon.assert.calledWith(res.render, 'index',{ layout: false , title: 'Please upload your application'});      
+        sinon.assert.calledWith(res.render as sinon.SinonStub, 'index',{ layout: false , title: 'Please upload your application'});      
     });
 });
 
-describe('profiles controller', function() {
-    let ProfileRecord: mongoose.Model<Profile> = require('../Models/profiles.models').ProfileRecord;
+describe('profiles controller',async function() {
+    let { ProfileRecord } = await import('../Models/profiles.models');
 
     beforeEach(function() {
         sinon.stub(ProfileRecord, 'find');
@@ -39,19 +40,19 @@ describe('profiles controller', function() {
 
         var expectedModels = [{}, {}];
         (ProfileRecord.find as sinon.SinonStub).resolves(expectedModels);
-        var req: any = { };
-        var res: any = {
+        var req: Partial<Request> = { };
+        var res: Partial<Response> = {
             json: sinon.stub()
         };
 
-        await viewProfiles(req, res);
+        await viewProfiles(<Request>req, <Response>res);
 
-        sinon.assert.calledWith(res.json, expectedModels);
+        sinon.assert.calledWith(res.json as sinon.SinonStub, expectedModels);
     });
 });
 
-describe('profiles controller upload', function () {
-    const ProfileRecord: mongoose.Model<Profile> = require('../Models/profiles.models').ProfileRecord;
+describe('profiles controller upload', async function () {
+    let { ProfileRecord } = await import('../Models/profiles.models');
     
     const ProfilePrototype: mongoose.Document = ProfileRecord.prototype;
     
@@ -71,32 +72,32 @@ describe('profiles controller upload', function () {
 
     it('should call save ', async function () {
 
-        let file = { path: 'test' }; 
+        let file: Partial<Express.Multer.File> = { path: 'test' }; 
         let body = { title:'test title', description: 'test description' };
-        let req: any = { file, body };
+        let req: Partial<Request> = { file: file as Express.Multer.File, body };
 
         let createdModels: Partial<Profile> = {};
-        let res: any = {
+        let res: Partial<Response> = {
             json: (data: any) => createdModels = data
         };
         
-        await uploadProfile(req, res);
+        await uploadProfile(<Request>req, <Response>res);
 
         sinon.assert.called(ProfileRecord.prototype.save);        
     });
 
     it('should create, save and return Profile', async function () {
 
-        let file = { path: 'test' }; 
+        let file: Partial<Express.Multer.File> = { path: 'test' }; 
         let body = { title:'test title', description: 'test description' };
-        let req: any = { file, body };
+        let req: Partial<Request> = { file: file as Express.Multer.File, body };
 
         let createdModel: Partial<Profile> = {};
-        let res: any = {
+        let res: Partial<Response> = {
             json: (data: any) => createdModel = data
         };
         
-        await uploadProfile(req, res);
+        await uploadProfile(<Request>req, <Response>res);
 
         expect(createdModel.fileName).to.equal(file.path);
         expect(createdModel.title).to.equal(body.title);
